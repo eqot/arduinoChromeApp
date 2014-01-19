@@ -2,22 +2,16 @@
 
 document.addEventListener('DOMContentLoaded', init, false);
 
-var openButton = null;
-var closeButton = null;
+var connectionId = null;
 var rangeLED = null;
 
 function init() {
-    openButton = document.getElementById('open');
-    openButton.addEventListener('click', openPort);
-
-    closeButton = document.getElementById('close');
-    closeButton.addEventListener('click', closePort);
-
     rangeLED = document.getElementById('led');
     rangeLED.addEventListener('change', send);
 
     var portsElement = document.getElementById('ports');
     portsElement.addEventListener('change', function (event) {
+        closePort();
         openPort(event.target);
     });
 
@@ -32,30 +26,36 @@ function init() {
             }
         }
         portsElement.selectedIndex = selectedIndex;
+
+        closePort();
         openPort(portsElement);
     });
 }
 
-var connectionId = 0;
-
 function openPort (element) {
-    console.log("openPort");
     var selectedPort = element.childNodes[element.selectedIndex].value;
-    console.log("Port " + selectedPort + " is selected.");
     var options = {
-        bitrate:9600
+        bitrate: 9600
     };
     chrome.serial.open(selectedPort, options, function (openInfo) {
-        connectionId = openInfo.connectionId;
-        console.log("openInfo.connectionId=" + connectionId);
-        if (connectionId==-1) alert("Error.");
+        if (openInfo.connectionId !== -1) {
+            console.log("Connected.");
+            connectionId = openInfo.connectionId;
+        } else {
+            console.log("Connection failed.");
+            connectionId = null;
+        }
     });
-
 }
 
 function closePort () {
+    if (connectionId === null) {
+        return;
+    }
+
     chrome.serial.close(connectionId, function () {
-        console.log("Closed.");
+        console.log("Disconnected.");
+        connectionId = null;
     });
 }
 
