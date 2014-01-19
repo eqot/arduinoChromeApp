@@ -2,14 +2,11 @@
 
 document.addEventListener('DOMContentLoaded', init, false);
 
-var select = null;
 var openButton = null;
 var closeButton = null;
 var rangeLED = null;
 
 function init() {
-    select = document.getElementById('ports');
-
     openButton = document.getElementById('open');
     openButton.addEventListener('click', openPort);
 
@@ -19,26 +16,31 @@ function init() {
     rangeLED = document.getElementById('led');
     rangeLED.addEventListener('change', send);
 
+    var portsElement = document.getElementById('ports');
+    portsElement.addEventListener('change', function (event) {
+        openPort(event.target);
+    });
+
     chrome.serial.getPorts(function (ports) {
         var selectedIndex = 0;
         for (var i = 0; i < ports.length; i++) {
             var port = ports[i];
-            select.appendChild(new Option(port, port));
+            portsElement.appendChild(new Option(port, port));
 
             if (port.match(/\/dev\/tty.usbserial-.+/)) {
                 selectedIndex = i;
             }
         }
-        select.selectedIndex = selectedIndex;
+        portsElement.selectedIndex = selectedIndex;
+        openPort(portsElement);
     });
 }
 
 var connectionId = 0;
-var selectedPort = null;
 
-function openPort () {
+function openPort (element) {
     console.log("openPort");
-    selectedPort = select.childNodes[select.selectedIndex].value;
+    var selectedPort = element.childNodes[element.selectedIndex].value;
     console.log("Port " + selectedPort + " is selected.");
     var options = {
         bitrate:9600
