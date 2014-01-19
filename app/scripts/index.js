@@ -42,10 +42,10 @@ function openPort (element) {
     };
     chrome.serial.open(selectedPort, options, function (openInfo) {
         if (openInfo.connectionId !== -1) {
-            console.log("Connected.");
+            console.log('Connected.');
             connectionId = openInfo.connectionId;
         } else {
-            console.log("Connection failed.");
+            console.log('Connection failed.');
             connectionId = null;
         }
     });
@@ -57,7 +57,7 @@ function closePort () {
     }
 
     chrome.serial.close(connectionId, function () {
-        console.log("Disconnected.");
+        console.log('Disconnected.');
         connectionId = null;
     });
 }
