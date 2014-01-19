@@ -3,11 +3,14 @@
 document.addEventListener('DOMContentLoaded', init, false);
 
 var connectionId = null;
-var rangeLED = null;
+var buffer = new ArrayBuffer(1);
+var bufferAsArray = new Uint8Array(buffer);
 
 function init() {
-    rangeLED = document.getElementById('led');
-    rangeLED.addEventListener('change', send);
+    var luminanceElement = document.getElementById('luminance');
+    luminanceElement.addEventListener('change', function (event) {
+        send(event.target.value);
+    });
 
     var portsElement = document.getElementById('ports');
     portsElement.addEventListener('change', function (event) {
@@ -59,14 +62,7 @@ function closePort () {
     });
 }
 
-function send () {
-    var ledVal = rangeLED.value;
-    var buff = new ArrayBuffer(1);
-    var arr = new Uint8Array(buff);
-    arr[0] = ledVal;
-    console.log("Send " + ledVal);
-    chrome.serial.write(connectionId, buff,
-        function (sendInfo){
-            console.log("Sent.");
-        });
+function send (value) {
+    bufferAsArray[0] = value;
+    chrome.serial.write(connectionId, buffer, function () {});
 }
