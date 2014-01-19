@@ -20,10 +20,16 @@ function init() {
     rangeLED.addEventListener('change', send);
 
     chrome.serial.getPorts(function (ports) {
-        for (var i=0; i<ports.length; i++) {
+        var selectedIndex = 0;
+        for (var i = 0; i < ports.length; i++) {
             var port = ports[i];
             select.appendChild(new Option(port, port));
+
+            if (port.match(/\/dev\/tty.usbserial-.+/)) {
+                selectedIndex = i;
+            }
         }
+        select.selectedIndex = selectedIndex;
     });
 }
 
